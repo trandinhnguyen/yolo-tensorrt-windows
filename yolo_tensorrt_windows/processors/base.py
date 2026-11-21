@@ -1,3 +1,4 @@
+import multiprocessing as mp
 import os
 import queue
 import time
@@ -11,6 +12,7 @@ from loguru import logger
 
 from .. import config
 from ..detection import Detections, Letterbox
+from ..log import configure_logging
 from ..task import JobRequest, Status, StatusUpdate
 from ..tracking import ByteTrack
 from ..video import VideoInfo, annotate_video
@@ -106,6 +108,21 @@ class BaseProcessor(ABC):
         logger.info(f"{type(self).__name__} exiting.")
 
 
-def run_worker(processor_cls: type[BaseProcessor], q_in: Queue, q_out: Queue) -> None:
-    """``multiprocessing.Process`` target: build a processor and serve jobs."""
-    processor_cls(q_in, q_out).serve_forever()
+def run_worker(
+    processor_cls: type[BaseProcessor],
+    q_in: Queue,
+    q_out: Queue,
+    log_dir: str | None = None,
+) -> None:
+    """``multiprocessing.Process`` target: build a processor and serve jobs.
+
+    With ``log_dir``, logs go to a file named after the process.
+    """
+    if log_dir is not None:
+        configure_logging(mp.current_process().name, log_dir)
+    try:
+        processor = processor_cls(q_in, q_out)
+    except Exception:
+        logger.exception(f"{processor_cls.__name__} failed to start")
+        raise
+    processor.serve_forever()

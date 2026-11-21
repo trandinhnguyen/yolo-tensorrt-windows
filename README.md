@@ -113,15 +113,38 @@ tracking in another pipeline, set `tracking = True` on its class in
 [`processors/cpu.py`](yolo_tensorrt_windows/processors/cpu.py) or
 [`processors/gpu.py`](yolo_tensorrt_windows/processors/gpu.py).
 
+## Benchmark without the window
+
+```ps1
+python app.py --benchmark path\to\video.mp4
+```
+
+Runs the video through all four pipelines one after another, writes the
+annotated videos to `output\` and the throughput table to `logs\main.log`. The
+exit code is non-zero if a pipeline fails.
+
+## Logs
+
+Each process logs to its own file in `logs\` (`main.log`, `sync-cpu.log`, ...),
+next to `output\` in the working directory. The built app has no console
+window, so look there when something goes wrong; startup errors are also shown in
+a message box.
+
 ## Build a standalone executable
 
 ```ps1
 .\scripts\build.ps1
 ```
 
-This creates `dist\ml_app\ml_app.exe` with the model, TensorRT, CUDA and FFmpeg
-DLLs bundled. If you distribute a build, you also distribute those third-party
-components; see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+This creates `dist\yolo-tensorrt-windows\yolo-tensorrt-windows.exe` with the
+ONNX model, TensorRT, CUDA and FFmpeg DLLs bundled; copy the whole
+`dist\yolo-tensorrt-windows` folder to deploy it. The TensorRT engine isn't
+bundled, because it's specific to a GPU: the app builds it on first start, with
+a progress dialog, which takes a few minutes. Any sample videos in `models\` are
+bundled too.
+
+If you distribute a build, you also distribute those third-party components; see
+[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
 ## Project layout
 
@@ -129,9 +152,10 @@ components; see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 app.py                     entry point (python app.py, PyInstaller)
 app.spec                   PyInstaller build spec
 yolo_tensorrt_windows/
-  app.py                   startup: TensorRT engine, workers, window
+  app.py                   startup: TensorRT engine, workers, window, --benchmark
   ui.py                    Qt desktop window and video player
   jobs.py                  worker processes and job bookkeeping
+  log.py                   logging to the console and per-process files
   task.py                  jobs and the messages exchanged with workers
   config.py                tunables
   paths.py                 file locations and DLL search paths

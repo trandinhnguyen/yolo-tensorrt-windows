@@ -16,6 +16,7 @@ BUNDLE_DIR = Path(getattr(sys, "_MEIPASS", PROJECT_ROOT))
 
 MODELS_DIR = BUNDLE_DIR / "models"
 OUTPUT_DIR = Path("output")  # relative to the working directory
+LOG_DIR = Path("logs")  # relative to the working directory
 
 # Third-party native libraries (source checkout only; bundled into BUNDLE_DIR
 # by app.spec when frozen).

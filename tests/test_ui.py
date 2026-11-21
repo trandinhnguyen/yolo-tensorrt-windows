@@ -116,3 +116,30 @@ def test_unreadable_video_shows_error_in_status_bar(window, tmp_path):
     window.pipeline_buttons["Sync CPU"].click()
     assert window.table.rowCount() == 0
     assert "Could not open video" in window.statusBar().currentMessage()
+
+
+def test_engine_build_progress_dialog(qapp, monkeypatch, tmp_path):
+    import time
+
+    from yolo_tensorrt_windows import app as app_module
+    from yolo_tensorrt_windows.inference import engine
+
+    target = tmp_path / "engine.trt"
+    monkeypatch.setattr(engine, "engine_path", lambda: target)
+
+    def slow_build():
+        time.sleep(0.3)
+        target.write_bytes(b"engine")
+
+    monkeypatch.setattr(engine, "ensure_engine", slow_build)
+    app_module._ensure_engine_with_progress(qapp)  # returns once the build is done
+    assert target.exists()
+    app_module._ensure_engine_with_progress(qapp)  # engine exists: no-op
+
+    def failing_build():
+        raise RuntimeError("ONNX parse failed")
+
+    monkeypatch.setattr(engine, "engine_path", lambda: tmp_path / "missing.trt")
+    monkeypatch.setattr(engine, "ensure_engine", failing_build)
+    with pytest.raises(RuntimeError, match="ONNX parse failed"):
+        app_module._ensure_engine_with_progress(qapp)

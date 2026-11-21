@@ -43,3 +43,10 @@ class FailingProcessor(FakeProcessor):
             raise RuntimeError("inference exploded")
 
         return [fail]
+
+
+class CrashingProcessor(FakeProcessor):
+    """Fails while starting up, like a pipeline whose GPU libraries won't load."""
+
+    def __init__(self, q_in, q_out):
+        raise RuntimeError("CUDA driver not found")
