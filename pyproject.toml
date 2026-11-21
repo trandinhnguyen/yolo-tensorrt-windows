@@ -1,0 +1,66 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "yolo-tensorrt-windows"
+version = "0.1.0"
+description = "Windows desktop app for real-time object detection and tracking with YOLOv8 and NVIDIA TensorRT."
+readme = "README.md"
+license = "AGPL-3.0-only"
+license-files = ["LICENSE", "THIRD_PARTY_NOTICES.md"]
+authors = [{ name = "Nguyen Tran" }]
+requires-python = "==3.10.*"  # the vendored TensorRT bindings are cp310
+keywords = ["yolo", "yolov8", "tensorrt", "object-detection", "object-tracking", "bytetrack", "cuda", "windows"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: GPU :: NVIDIA CUDA",
+    "Environment :: Win32 (MS Windows)",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Operating System :: Microsoft :: Windows",
+    "Programming Language :: Python :: 3.10",
+    "Topic :: Scientific/Engineering :: Image Recognition",
+]
+dependencies = [
+    # CUDA 11.8 builds; install these first from the PyTorch index
+    # (scripts/install.ps1 does this).
+    "torch==2.3.1",
+    "torchvision==0.18.1",
+    "torchaudio==2.3.1",
+    "cuda-python==12.9.6",
+    "opencv-python==4.11.0.86",
+    "numpy==1.26.4",
+    "scipy",
+    "loguru",
+    "psutil",
+    "PySide6-Essentials>=6.8",
+]
+
+[project.optional-dependencies]
+dev = ["pyinstaller", "pytest", "ruff"]
+notebook = ["ipykernel", "ipywidgets", "matplotlib"]
+
+[project.urls]
+Homepage = "https://github.com/trandinhnguyen/yolo-tensorrt-windows"
+Issues = "https://github.com/trandinhnguyen/yolo-tensorrt-windows/issues"
+Changelog = "https://github.com/trandinhnguyen/yolo-tensorrt-windows/blob/main/CHANGELOG.md"
+
+[tool.setuptools.packages.find]
+include = ["yolo_tensorrt_windows*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+
+[tool.ruff]
+line-length = 88
+target-version = "py310"
+extend-exclude = ["yolo_tensorrt_windows/inference/tensorrt_*", "experiments"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP"]
+ignore = [
+    "E501",  # long lines are left to the formatter
+    "B905",  # zip(strict=...) adds noise for same-length sequences
+]

@@ -1,0 +1,38 @@
+name: Bug report
+description: Something doesn't work as expected
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for reporting! Please fill in as much as you can.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What did you do, what did you expect, and what happened instead?
+    validations:
+      required: true
+  - type: dropdown
+    id: pipeline
+    attributes:
+      label: Pipeline
+      multiple: true
+      options: [Sync CPU, Async CPU, Sync GPU, Async GPU, Not pipeline-specific]
+  - type: input
+    id: gpu
+    attributes:
+      label: GPU and driver version
+      placeholder: e.g. RTX 4060 Ti, driver 621.24 (from nvidia-smi)
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: App version or commit
+      placeholder: e.g. v0.1.0 or a commit hash; say if you use the built .exe
+  - type: textarea
+    id: logs
+    attributes:
+      label: Console log
+      description: The output of the console window, including any traceback.
+      render: text
